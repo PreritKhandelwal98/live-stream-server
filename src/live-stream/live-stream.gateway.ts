@@ -1,18 +1,28 @@
-import { WebSocketGateway, WebSocketServer, SubscribeMessage, MessageBody } from '@nestjs/websockets';
+import { WebSocketGateway, WebSocketServer, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway()
-export class LiveStreamGateway {
+export class LiveStreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
+  handleConnection(client: Socket) {
+    console.log('Client connected:', client.id);
+  }
+
+  handleDisconnect(client: Socket) {
+    console.log('Client disconnected:', client.id);
+  }
+
   @SubscribeMessage('startStream')
-  handleStartStream(@MessageBody() data: any): void {
+  handleStartStream(client: Socket, data: Buffer) {
+    console.log('Stream data received');
     this.server.emit('streamData', data);
   }
 
   @SubscribeMessage('stopStream')
-  handleStopStream(@MessageBody() data: any): void {
-    this.server.emit('streamStopped', data);
+  handleStopStream(client: Socket) {
+    console.log('Stream stopped');
+    this.server.emit('streamStopped');
   }
 }
