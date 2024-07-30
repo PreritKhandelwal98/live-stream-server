@@ -1,5 +1,5 @@
 let token = localStorage.getItem('token');
-const socket = io('http://localhost:3000', {
+const socket = io('https://live-stream-server-j6mk.onrender.com', {
     query: { token },
 });
 
