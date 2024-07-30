@@ -14,6 +14,13 @@
             object-fit: cover;
             /* Ensure the video fits within the dimensions */
         }
+
+        #messages {
+            border: 1px solid #ccc;
+            height: 200px;
+            overflow-y: scroll;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 
@@ -34,6 +41,12 @@
         <video id="video" width="600" controls></video><br>
         <button id="start">Start Streaming</button>
         <button id="stop">Stop Streaming</button>
+        <div id="chat">
+            <h2>Chat</h2>
+            <div id="messages"></div>
+            <input type="text" id="messageInput" placeholder="Type a message...">
+            <button id="sendMessage">Send</button>
+        </div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>

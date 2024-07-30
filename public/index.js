@@ -8,6 +8,9 @@ const startButton = document.getElementById('start');
 const stopButton = document.getElementById('stop');
 const loginButton = document.getElementById('loginButton');
 const loginError = document.getElementById('loginError');
+const messageInput = document.getElementById('messageInput');
+const sendMessageButton = document.getElementById('sendMessage');
+const messagesElement = document.getElementById('messages');
 let mediaRecorder;
 let stream;
 let mediaSource = new MediaSource();
@@ -77,7 +80,6 @@ startButton.addEventListener('click', () => {
         });
 });
 
-
 socket.on('streamData', (data) => {
     console.log('Received stream data:', data);
     if (sourceBuffer && !sourceBuffer.updating) {
@@ -95,4 +97,20 @@ socket.on('streamStopped', () => {
     if (stream) {
         stream.getTracks().forEach(track => track.stop());
     }
+});
+
+// Chat feature
+sendMessageButton.addEventListener('click', () => {
+    const message = messageInput.value.trim();
+    if (message) {
+        socket.emit('chatMessage', { username: 'User', text: message });
+        messageInput.value = '';
+    }
+});
+
+socket.on('chatMessage', (message) => {
+    const messageElement = document.createElement('div');
+    messageElement.textContent = `${message.username}: ${message.text}`;
+    messagesElement.appendChild(messageElement);
+    messagesElement.scrollTop = messagesElement.scrollHeight; // Scroll to the bottom
 });
