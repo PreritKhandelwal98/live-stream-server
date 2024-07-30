@@ -69,15 +69,27 @@ startButton.addEventListener('click', () => {
             };
 
             mediaRecorder.start(1000); // Adjust time slice as needed
-
-            stopButton.addEventListener('click', () => {
-                mediaRecorder.stop();
-                socket.emit('stopStream');
-            });
         })
         .catch(error => {
             console.error('Error accessing media devices.', error);
         });
+});
+
+stopButton.addEventListener('click', () => {
+    if (mediaRecorder) {
+        mediaRecorder.stop();
+        socket.emit('stopStream');
+    }
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop()); // Stop all media tracks
+        videoElement.srcObject = null; // Clear video element source
+    }
+    if (sourceBuffer) {
+        sourceBuffer.abort(); // Stop appending data
+    }
+    if (mediaSource) {
+        mediaSource.endOfStream(); // End the media source
+    }
 });
 
 socket.on('streamData', (data) => {
@@ -109,8 +121,21 @@ sendMessageButton.addEventListener('click', () => {
 });
 
 socket.on('chatMessage', (message) => {
-    const messageElement = document.createElement('div');
-    messageElement.textContent = `${message.username}: ${message.text}`;
-    messagesElement.appendChild(messageElement);
-    messagesElement.scrollTop = messagesElement.scrollHeight; // Scroll to the bottom
+    if (message.username && message.text) {
+        const messageElement = document.createElement('div');
+        const lastMessageElement = messagesElement.lastElementChild;
+
+        // Check if the previous message was from the same user
+        if (lastMessageElement && lastMessageElement.dataset.username === message.username) {
+            messageElement.textContent = `${message.username}: ${message.text}`;
+        } else {
+            messageElement.textContent = `${message.username}: ${message.text}`;
+        }
+
+        messageElement.dataset.username = message.username;
+        messagesElement.appendChild(messageElement);
+        messagesElement.scrollTop = messagesElement.scrollHeight; // Scroll to the bottom
+    } else {
+        console.error('Received chat message with missing username or text');
+    }
 });
