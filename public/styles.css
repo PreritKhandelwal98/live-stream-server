@@ -1,0 +1,159 @@
+/* General styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    max-width: 1200px;
+    width: 100%;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background: #fff;
+    border-radius: 8px;
+    text-align: center;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+.form-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.form-container input {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+    max-width: 300px;
+}
+
+.form-container button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    background: #007bff;
+    color: #fff;
+    cursor: pointer;
+}
+
+.form-container button:hover {
+    background: #0056b3;
+}
+
+.error-message {
+    color: red;
+    margin-top: 10px;
+}
+
+.stream-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.video-element {
+    width: 100%;
+    max-width: 800px;
+    height: auto;
+    border-radius: 8px;
+    background-color: #000;
+}
+
+.controls {
+    margin-top: 10px;
+}
+
+.controls button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    background: #28a745;
+    color: #fff;
+    cursor: pointer;
+    margin: 0 5px;
+}
+
+.controls button:hover {
+    background: #218838;
+}
+
+.chat-container {
+    margin-top: 20px;
+    width: 100%;
+    max-width: 800px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.messages {
+    max-height: 200px;
+    overflow-y: auto;
+    background: #fff;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    text-align: left;
+}
+
+.messages div {
+    margin-bottom: 10px;
+}
+
+.messages div:last-child {
+    margin-bottom: 0;
+}
+
+#messageInput {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: calc(100% - 90px);
+}
+
+#sendMessage {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    background: #007bff;
+    color: #fff;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+#sendMessage:hover {
+    background: #0056b3;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .video-element {
+        width: 100%;
+        max-width: none;
+    }
+
+    .controls button {
+        padding: 8px 16px;
+    }
+
+    #messageInput {
+        width: calc(100% - 80px);
+    }
+
+    #sendMessage {
+        padding: 8px 16px;
+    }
+}

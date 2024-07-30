@@ -5,47 +5,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Live Stream</title>
-    <style>
-        #video {
-            width: 600px;
-            /* Fixed width */
-            height: 400px;
-            /* Fixed height */
-            object-fit: cover;
-            /* Ensure the video fits within the dimensions */
-        }
-
-        #messages {
-            border: 1px solid #ccc;
-            height: 200px;
-            overflow-y: scroll;
-            margin-bottom: 10px;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
-    <h1>Live Stream</h1>
+    <div class="container">
+        <h1>Live Stream</h1>
 
-    <div id="login">
-        <h2>Login</h2>
-        <label for="username">Username:</label>
-        <input type="text" id="username"><br>
-        <label for="password">Password:</label>
-        <input type="password" id="password"><br>
-        <button id="loginButton">Login</button>
-        <p id="loginError" style="color: red;"></p>
-    </div>
+        <div id="login" class="form-container">
+            <h2>Login</h2>
+            <label for="username">Username:</label>
+            <input type="text" id="username" placeholder="Enter your username"><br>
+            <label for="password">Password:</label>
+            <input type="password" id="password" placeholder="Enter your password"><br>
+            <button id="loginButton">Login</button>
+            <p id="loginError" class="error-message"></p>
+        </div>
 
-    <div id="stream" style="display: none;">
-        <video id="video" width="600" controls></video><br>
-        <button id="start">Start Streaming</button>
-        <button id="stop">Stop Streaming</button>
-        <div id="chat">
-            <h2>Chat</h2>
-            <div id="messages"></div>
-            <input type="text" id="messageInput" placeholder="Type a message...">
-            <button id="sendMessage">Send</button>
+        <div id="stream" class="stream-container" style="display: none;">
+            <video id="video" class="video-element" controls></video>
+            <div class="controls">
+                <button id="start">Start Streaming</button>
+                <button id="stop">Stop Streaming</button>
+            </div>
+            <div id="chat" class="chat-container">
+                <div id="messages" class="messages"></div>
+                <input type="text" id="messageInput" placeholder="Type a message">
+                <button id="sendMessage">Send</button>
+            </div>
         </div>
     </div>
 
