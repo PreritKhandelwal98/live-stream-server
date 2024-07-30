@@ -1,28 +1,32 @@
-import { WebSocketGateway, WebSocketServer, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage } from '@nestjs/websockets';
+import { WebSocketGateway, WebSocketServer, SubscribeMessage, MessageBody, ConnectedSocket } from '@nestjs/websockets';
+import { Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway()
-export class LiveStreamGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  @WebSocketServer()
-  server: Server;
-
-  handleConnection(client: Socket) {
-    console.log('Client connected:', client.id);
-  }
-
-  handleDisconnect(client: Socket) {
-    console.log('Client disconnected:', client.id);
-  }
+export class LiveStreamGateway {
+  @WebSocketServer() server: Server;
+  private logger: Logger = new Logger('LiveStreamGateway');
 
   @SubscribeMessage('startStream')
-  handleStartStream(client: Socket, data: Buffer) {
-    console.log('Stream data received');
-    this.server.emit('streamData', data);
+  handleStream(@MessageBody() data: Buffer, @ConnectedSocket() client: Socket) {
+    if (!client) {
+      this.logger.error('Client is undefined');
+      return;
+    }
+
+    this.logger.log(`Received stream data from ${client.id}`);
+    // Handle stream data
+    this.server.emit('streamData', data); // Ensure this emits data correctly
   }
 
   @SubscribeMessage('stopStream')
-  handleStopStream(client: Socket) {
-    console.log('Stream stopped');
+  handleStopStream(@ConnectedSocket() client: Socket) {
+    if (!client) {
+      this.logger.error('Client is undefined');
+      return;
+    }
+
+    this.logger.log(`Stream stopped by ${client.id}`);
     this.server.emit('streamStopped');
   }
 }

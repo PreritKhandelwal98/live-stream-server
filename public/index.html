@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Stream.....</title>
+    <title>Live Stream</title>
     <style>
         #video {
             width: 600px;
@@ -15,14 +15,27 @@
             /* Ensure the video fits within the dimensions */
         }
     </style>
-
 </head>
 
 <body>
     <h1>Live Stream</h1>
-    <video id="video" width="600" controls></video>
-    <button id="start">Start Streaming</button>
-    <button id="stop">Stop Streaming</button>
+
+    <div id="login">
+        <h2>Login</h2>
+        <label for="username">Username:</label>
+        <input type="text" id="username"><br>
+        <label for="password">Password:</label>
+        <input type="password" id="password"><br>
+        <button id="loginButton">Login</button>
+        <p id="loginError" style="color: red;"></p>
+    </div>
+
+    <div id="stream" style="display: none;">
+        <video id="video" width="600" controls></video><br>
+        <button id="start">Start Streaming</button>
+        <button id="stop">Stop Streaming</button>
+    </div>
+
     <script src="/socket.io/socket.io.js"></script>
     <script src="index.js"></script>
 </body>
