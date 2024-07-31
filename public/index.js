@@ -1,34 +1,84 @@
-let token = localStorage.getItem('token');
-const socket = io('http://localhost:3000/', {
-    query: { token },
-});
-
 const videoElement = document.getElementById('video');
-const startButton = document.getElementById('start');
-const stopButton = document.getElementById('stop');
 const loginButton = document.getElementById('loginButton');
 const loginError = document.getElementById('loginError');
 const messageInput = document.getElementById('messageInput');
 const sendMessageButton = document.getElementById('sendMessage');
 const messagesElement = document.getElementById('messages');
+const startButton = document.getElementById('start');
+const stopButton = document.getElementById('stop');
 
 let mediaRecorder;
 let stream;
-let mediaSource = new MediaSource();
+let mediaSource;
 let sourceBuffer;
+let isSourceBufferUpdating = false;
 let username;
+const queue = [];
 let isAdmin = false;
+let mediaStream = new MediaStream();
+videoElement.srcObject = mediaStream;
 
-videoElement.src = URL.createObjectURL(mediaSource);
-
-mediaSource.addEventListener('sourceopen', () => {
-    try {
-        sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs="vp8, vorbis"');
-        console.log('Source buffer opened');
-    } catch (e) {
-        console.error('Error adding SourceBuffer:', e);
-    }
+let token = localStorage.getItem('token');
+const socket = io('http://localhost:3000/', {
+    query: { token },
 });
+
+function initializeMediaSource() {
+    mediaSource = new MediaSource();
+    videoElement.src = URL.createObjectURL(mediaSource);
+
+    mediaSource.addEventListener('sourceopen', () => {
+        try {
+            sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs="vp8, opus"');
+            console.log('Source buffer opened');
+
+            sourceBuffer.addEventListener('updateend', () => {
+                isSourceBufferUpdating = false;
+                console.log('SourceBuffer update ended');
+                if (queue.length > 0) {
+                    appendBuffer(queue.shift());
+                }
+            });
+
+            sourceBuffer.addEventListener('error', (e) => {
+                console.error('SourceBuffer error:', e);
+                resetMediaSource();
+            });
+        } catch (e) {
+            console.error('Error adding SourceBuffer:', e);
+            resetMediaSource();
+        }
+    });
+}
+
+function appendBuffer(data) {
+    if (sourceBuffer && mediaSource.readyState === 'open' && !isSourceBufferUpdating) {
+        isSourceBufferUpdating = true;
+        try {
+            sourceBuffer.appendBuffer(new Uint8Array(data));
+        } catch (e) {
+            console.error('Error appending buffer:', e);
+            resetMediaSource();
+        }
+    } else {
+        queue.push(data);
+    }
+}
+
+function resetMediaSource() {
+    if (mediaSource) {
+        if (mediaSource.readyState === 'open') {
+            try {
+                mediaSource.endOfStream();
+            } catch (e) {
+                console.error('Error ending MediaSource:', e);
+            }
+        }
+        mediaSource = null;
+        sourceBuffer = null;
+        videoElement.src = '';
+    }
+}
 
 loginButton.addEventListener('click', async () => {
     const usernameInput = document.getElementById('username').value;
@@ -74,6 +124,8 @@ function updateUIForUserRole() {
 }
 
 startButton.addEventListener('click', () => {
+    initializeMediaSource();
+
     navigator.mediaDevices.getUserMedia({ video: true, audio: true })
         .then(mediaStream => {
             stream = mediaStream;
@@ -83,12 +135,14 @@ startButton.addEventListener('click', () => {
 
             mediaRecorder.ondataavailable = (event) => {
                 if (event.data.size > 0) {
-                    console.log('Sending data:', event.data);
-                    socket.emit('startStream', event.data);
+                    event.data.arrayBuffer().then(arrayBuffer => {
+                        console.log('Sending data:', arrayBuffer.byteLength);
+                        socket.emit('streamData', arrayBuffer);
+                    });
                 }
             };
 
-            mediaRecorder.start(1000);
+            mediaRecorder.start(1000); // Send data in 1-second intervals
         })
         .catch(error => {
             console.error('Error accessing media devices.', error);
@@ -104,44 +158,23 @@ stopButton.addEventListener('click', () => {
         stream.getTracks().forEach(track => track.stop());
         videoElement.srcObject = null;
     }
-    if (sourceBuffer) {
-        sourceBuffer.abort();
-    }
-    if (mediaSource) {
-        mediaSource.endOfStream();
-    }
 });
 
 socket.on('streamData', (data) => {
-    console.log('Received stream data:', data);
-    if (sourceBuffer && !sourceBuffer.updating) {
-        try {
-            sourceBuffer.appendBuffer(new Uint8Array(data));
-        } catch (error) {
-            console.error('Error appending buffer:', error);
-            mediaSource.endOfStream();
-        }
-    } else {
-        console.log('Buffer is updating, queueing data');
-    }
+    appendBuffer(data);
 });
 
 socket.on('streamStopped', () => {
     console.log('Stream stopped');
-    if (sourceBuffer) {
-        sourceBuffer.abort();
-    }
-    mediaSource.endOfStream();
-    videoElement.srcObject = null;
-    if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-    }
+    mediaStream.getTracks().forEach(track => track.stop());
+    mediaStream = new MediaStream();
+    videoElement.srcObject = mediaStream;
 });
 
 sendMessageButton.addEventListener('click', () => {
     const message = messageInput.value.trim();
     if (message) {
-        socket.emit('chatMessage', { username: 'User', text: message });
+        socket.emit('chatMessage', { username, text: message });
         messageInput.value = '';
     }
 });
@@ -152,7 +185,7 @@ socket.on('chatMessage', (message) => {
         const lastMessageElement = messagesElement.lastElementChild;
 
         if (lastMessageElement && lastMessageElement.dataset.username === message.username) {
-            messageElement.textContent = `${message.username}: ${message.text}`;
+            messageElement.textContent = `${message.text}`;
         } else {
             messageElement.textContent = `${message.username}: ${message.text}`;
         }
