@@ -20,7 +20,8 @@ export class LiveStreamGateway {
   }
 
   @SubscribeMessage('streamData')
-  handleStreamData(@MessageBody() data: ArrayBuffer, @ConnectedSocket() client: Socket) {
+  handleStreamData(@MessageBody() data: Buffer, @ConnectedSocket() client: Socket) {
+    this.logger.log(`Received stream data from ${client.id} of size ${data.byteLength}`);
     this.server.emit('streamData', data); // Forward data to all connected viewers
   }
 
@@ -45,7 +46,6 @@ export class LiveStreamGateway {
     }
 
     this.logger.log(`Viewing stream by ${client.id}`);
-    // Notify client that streaming has started
-    client.emit('streamStarted');
+    client.emit('streamStarted'); // Notify client that streaming has started
   }
 }
