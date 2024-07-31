@@ -8,25 +8,38 @@ export class LiveStreamGateway {
   private logger: Logger = new Logger('LiveStreamGateway');
 
   @SubscribeMessage('startStream')
-  handleStream(@MessageBody() data: Buffer, @ConnectedSocket() client: Socket) {
-    if (!client) {
-      this.logger.error('Client is undefined');
+  handleStreamStart(@MessageBody() data: Buffer, @ConnectedSocket() client: Socket) {
+    const role = client.handshake.auth.role;
+    if (role !== 'admin') {
+      this.logger.warn(`Unauthorized access attempt to start stream by ${client.id}`);
       return;
     }
 
-    this.logger.log(`Received stream data from ${client.id}`);
-    // Handle stream data
-    this.server.emit('streamData', data); // Ensure this emits data correctly
+    this.logger.log(`Starting stream by ${client.id}`);
+    this.server.emit('streamStarted', data); // Ensure this emits data correctly
   }
 
   @SubscribeMessage('stopStream')
-  handleStopStream(@ConnectedSocket() client: Socket) {
-    if (!client) {
-      this.logger.error('Client is undefined');
+  handleStreamStop(@ConnectedSocket() client: Socket) {
+    const role = client.handshake.auth.role;
+    if (role !== 'admin') {
+      this.logger.warn(`Unauthorized access attempt to stop stream by ${client.id}`);
       return;
     }
 
-    this.logger.log(`Stream stopped by ${client.id}`);
+    this.logger.log(`Stopping stream by ${client.id}`);
     this.server.emit('streamStopped');
+  }
+
+  @SubscribeMessage('viewStream')
+  handleStreamView(@ConnectedSocket() client: Socket) {
+    const role = client.handshake.auth.role;
+    if (role !== 'viewer' && role !== 'admin') {
+      this.logger.warn(`Unauthorized access attempt to view stream by ${client.id}`);
+      return;
+    }
+
+    this.logger.log(`Viewing stream by ${client.id}`);
+    this.server.emit('streamData');
   }
 }
