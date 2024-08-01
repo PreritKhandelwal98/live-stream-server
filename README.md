@@ -93,16 +93,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Socket.io](https://socket.io/) for real-time communication.
 - [MediaSource API](https://developer.mozilla.org/en-US/docs/Web/API/MediaSource) for handling streaming media.
 
-```
-
-### Key Sections:
-- **Overview**: Brief description of the project and its features.
-- **Prerequisites**: Necessary tools and libraries.
-- **Installation**: Steps to set up both backend and frontend.
-- **Setup**: Instructions on starting both backend and frontend servers.
-- **Usage**: How to log in as admin or viewer and use the application.
-- **Project Structure**: Description of the project’s directory and files.
-- **API Endpoints**: Mention of WebSocket usage for real-time communication.
-- **Troubleshooting**: Common issues and solutions.
-- **License**: Information on licensing.
-- **Acknowledgments**: Credits for external libraries and frameworks.
