@@ -48,4 +48,22 @@ export class LiveStreamGateway {
     this.logger.log(`Viewing stream by ${client.id}`);
     client.emit('streamStarted'); // Notify client that streaming has started
   }
+
+  @SubscribeMessage('iceCandidate')
+  handleIceCandidate(@MessageBody() candidate: any, @ConnectedSocket() client: Socket) {
+    this.logger.log(`Received ICE candidate from ${client.id}`);
+    this.server.emit('iceCandidate', candidate);
+  }
+
+  @SubscribeMessage('offer')
+  handleOffer(@MessageBody() offer: any, @ConnectedSocket() client: Socket) {
+    this.logger.log(`Received offer from ${client.id}`);
+    this.server.emit('offer', offer);
+  }
+
+  @SubscribeMessage('answer')
+  handleAnswer(@MessageBody() answer: any, @ConnectedSocket() client: Socket) {
+    this.logger.log(`Received answer from ${client.id}`);
+    this.server.emit('answer', answer);
+  }
 }
