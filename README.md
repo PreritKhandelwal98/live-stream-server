@@ -25,7 +25,7 @@ To set up and run this project, you'll need the following:
 First, clone the repository to your local machine:
 
 ```bash
-git clone [<repository-url>](https://github.com/PreritKhandelwal98/live-stream-server)
+git clone https://github.com/PreritKhandelwal98/live-stream-server
 cd live-stream-server
 ```
 
